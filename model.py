@@ -25,10 +25,10 @@ def get_model(input_shape=(216, 216, 3), pool_size=(2, 2), activation='relu'):
             BatchNormalization(trainable=True, name='BN_2'),
             MaxPool2D(pool_size, name='Pool_4'),
 
-            Conv2D(64, (3, 3), activation=activation, name='Conv_5-1'),
-            Conv2D(64, (3, 3), activation=activation, name='Conv_5-2'),
-            BatchNormalization(trainable=True, name='BN_3'),
-            MaxPool2D(pool_size, name='Pool_5'),
+            # Conv2D(64, (3, 3), activation=activation, name='Conv_5-1'),
+            # Conv2D(64, (3, 3), activation=activation, name='Conv_5-2'),
+            # BatchNormalization(trainable=True, name='BN_3'),
+            # MaxPool2D(pool_size, name='Pool_5'),
 
             Flatten(name='Flatten_1'),
             Dense(1024, activation='tanh', name='Dense_1'),
@@ -42,7 +42,7 @@ def get_model(input_shape=(216, 216, 3), pool_size=(2, 2), activation='relu'):
     )
 
     model.compile(optimizer='adam', loss='mse', metrics=['mae', RootMeanSquaredError()])
-    # model.summary()
+    model.summary()
 
     return model
 
