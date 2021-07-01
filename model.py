@@ -1,5 +1,6 @@
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Flatten, Dense, Dropout
+from tensorflow.keras.metrics import RootMeanSquaredError
 
 """ Layers are Named in the following Manner " <TYPE> __ <Branch_no> - <Seq_no> " Combined branch is considered as 4th Branch"""
 
@@ -40,8 +41,8 @@ def get_model(input_shape=(216, 216, 3), pool_size=(2, 2), activation='relu'):
         ]
     )
 
-    model.compile(optimizer='adam', loss='root_mean_squared_error', metrics=['mae', 'mse'])
-    model.summary()
+    model.compile(optimizer='adam', loss='mse', metrics=['mae', RootMeanSquaredError()])
+    # model.summary()
 
     return model
 

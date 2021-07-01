@@ -2,45 +2,46 @@ import tensorflow as tf
 import numpy as np
 from model import get_model
 import glob
+from random import shuffle
 
 
-def train_model(model, input_shape, EPOCHS = 40)
+def train_model(model, input_shape, EPOCHS = 40):
     WIDTH = input_shape[0]
     HEIGHT = input_shape[1]
+    epoch_count = 0
     for e in range(EPOCHS):
         FILE_I_END = glob.glob(r'Training_Data\training_data_*.npy')
-        data_order = [i for i in range(1, FILE_I_END + 1)]
+        data_order = [i for i in range(0, len(FILE_I_END) )]
         shuffle(data_order)
         for count, i in enumerate(data_order):
-            try:   #todo remove for debugging
-                file_name = r'Training_Data\training_data_{}.npy'.format(i)
-                train_data = np.load(file_name)
-                print('training_data_{}.npy'.format(i), len(train_data))
-                test_split = 0.1
-                train_len = len(train_data) * (1-test_split)
+            file_name = r'Training_Data\training_data_{}.npy'.format(i)
+            train_data = np.load(file_name, allow_pickle=True)
+            print('training_data_{}.npy'.format(i), len(train_data))
+            test_split = 0.1
+            train_len = int(len(train_data) * (1-test_split))
 
-                train = train_data[:train_len]
-                test = train_data[train_len:]
+            train = train_data[:train_len]
+            test = train_data[train_len:]
 
-                X = np.array([i[0] for i in train]).reshape(-1, WIDTH, HEIGHT, 3)
-                Y = [i[1] for i in train] #todo reshape(-1, shape) if doesn't work
+            X = np.array([i[0] for i in train]).reshape(-1, WIDTH, HEIGHT, 3)
+            Y = np.array([i[1] for i in train]).reshape(-1,2)
+            # print(X.shape)
+            # print(Y.shape)
+            test_x = np.array([i[0] for i in test]).reshape(-1,WIDTH,HEIGHT,3)
+            test_y = np.array([i[1] for i in test]).reshape(-1,2)
 
-                test_x = np.array([i[0] for i in test]).reshape(-1,WIDTH,HEIGHT,3)
-                test_y = [i[1] for i in test]
+            history = model.fit(x= {"input": X}, y= {'targets': Y}, epochs= 1, validation_data= ({'input': test_x}, {'targets': test_y}) ) #validation_data=({'input': test_x}, {'targets': test_y})
 
-                history = model.fit({'input': X}, {'targets': Y}, n_epoch=1,
-                                    validation_set=({'input': test_x}, {'targets': test_y}),)
-                                                                #todo (inputs=inputs, outputs=outputs) if doesn't work
-                #todo implement early stopping
-                if count%10 == 0:
+            epoch_count += 1
+            print(epoch_count)
+            #todo implement early stopping
+            if epoch_count % 10 == 0:
                 print('SAVING MODEL!')
-                model.save(('Weights_{}').format(count))
+                model.save(('Weights\Weights_{}').format(epoch_count))
 
+            del train_data
+            print('Done')
 
-                del train_data
-
-            except:
-                assert("File not Found")
 
 
 if __name__ == '__main__':
