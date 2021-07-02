@@ -11,12 +11,16 @@ def train_model(model, input_shape, EPOCHS = 40):
     WIDTH = input_shape[0]
     HEIGHT = input_shape[1]
     epoch_count = 0
+    print("block-1")
     for e in range(EPOCHS):
-        FILE_I_END = glob.glob(r'Training_Data\training_data_*.npy')
-        data_order = [i for i in range(0, len(FILE_I_END) )]
+        FILE_I_END = glob.glob(r'data/training_data_*.npy')
+        print(FILE_I_END)
+        data_order = [i for i in range(0, len(FILE_I_END))]
         shuffle(data_order)
-        for count, i in enumerate(data_order):
-            file_name = r'Training_Data\training_data_{}.npy'.format(i)
+        # print(data_order)
+        for i in range(2):
+            print("hello")
+            file_name = r'data/training_data_{}.npy'.format(i)
             train_data = np.load(file_name, allow_pickle=True)
             print('training_data_{}.npy'.format(i), len(train_data))
             test_split = 0.1
@@ -50,4 +54,6 @@ if __name__ == '__main__':
     input_shape = (216,216,3)
     pool_size = (2,2)
     model = get_model(input_shape, pool_size)
+    print("model loaded")
     train_model(model, input_shape, 40)
+    print("training")
