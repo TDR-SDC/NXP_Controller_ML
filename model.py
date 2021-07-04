@@ -31,13 +31,13 @@ def get_model(input_shape=(216, 216, 3), pool_size=(2, 2), activation='relu'):
             # MaxPool2D(pool_size, name='Pool_5'),
 
             Flatten(name='Flatten_1'),
-            Dense(1024, activation='tanh', name='Dense_1'),
+            Dense(1024, activation='relu', name='Dense_1'),
             Dropout(0.5, name='Drop_1'),
-            Dense(512, activation='tanh', name='Dense_NXP_2'),
+            Dense(512, activation='relu', name='Dense_NXP_2'),
             Dropout(0.5, name='Drop_NXP_2'),
             Dense(128, activation='tanh', name='Dense_NXP_3'),
             Dropout(0.3, name='Drop_NXP_3'),
-            Dense(2, activation='tanh', name='targets')
+            Dense(1, activation='tanh', name='targets')
         ]
     )
 
