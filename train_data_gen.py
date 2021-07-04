@@ -12,7 +12,7 @@ from rclpy.qos import qos_profile_sensor_data
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
-from math import atan2
+from math import atan
 
 # todo Initialising training location
 training_dir = r'/data'
@@ -25,11 +25,8 @@ _joystick = pygame.joystick.Joystick(0)
 _joystick.init()
 
 def get_user_input():
-    user_input = []
     pygame.event.get()
-    user_input.append(round(_joystick.get_axis(1) , 3))
-    user_input.append(round(_joystick.get_axis(2), 3))
-    user_input = np.array(user_input)
+    user_input = _joystick.get_axis(3)
 
     return user_input
 
@@ -52,36 +49,49 @@ class DataLoader(Node):
         self.speed_vector = Vector3()
         self.steer_vector = Vector3()
         self.cmd_vel = Twist()
+        self.Pause = False
 
 
     def listener_callback(self, data):
         usr_in = get_user_input()
+        steer = - atan(usr_in)
 
-        velocity = usr_in[1]
-        velocity *= 5
-        velocity = max(0, velocity)
+        if not self.Pause:  # self.Pause Mechanism
+            path = r'/home/klrshak/ros2ws/src/aim_line_follow/aim_line_follow/NXP_Controller_ML/data/'
+            file_name = r'training_data_{}.npy'.format(self.file_count)
+            img = self.bridge.imgmsg_to_cv2(data, 'bgr8')
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, (216, 216))
+            self.train_data.append([img, usr_in])
 
-        steer = atan2(usr_in[0])
 
-        file_name = r'training_data_{}.npy'.format(self.file_count)
-        img = self.bridge.imgmsg_to_cv2(data, 'bgr8')
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (216, 216))
-        self.train_data.append([img, usr_in])
-        if len(self.train_data)%1000==0:
-            np.save(file_name, self.train_data)
-            self.file_count +=1
-            self.train_data = []
+            if len(self.train_data)%3000==0:
+                np.save(path + file_name, self.train_data)
+                print("Saved {}".format(file_name))
+                self.file_count +=1
+                self.train_data = []
 
-        self.speed_vector.x = float(velocity)
-        self.steer_vector.z = float(steer)
+            self.speed_vector.x = float(0.5)
+            self.steer_vector.z = float(steer)
 
-        self.cmd_vel.linear = self.speed_vector
-        self.cmd_vel.angular = self.steer_vector
-        self.cmd_vel_publisher.publish(self.cmd_vel)
+            self.cmd_vel.linear = self.speed_vector
+            self.cmd_vel.angular = self.steer_vector
+            self.cmd_vel_publisher.publish(self.cmd_vel)
 
-        cv2.imshow("image", img)
-        cv2.waitKey(1)
+            cv2.imshow("image", img)
+            cv2.waitKey(1)
+            pygame.event.get()
+            if _joystick.get_button(5):  # 5 is right bumper
+                self.Pause = True
+                print('---------------PAUSED!!!--------------')
+                time.sleep(0.5)
+
+
+        pygame.event.get()
+        if _joystick.get_button(5):  # 5 is right Trigger
+            self.Pause = False
+            print('Starting Up.............')
+            time.sleep(0.5)
 
 
 def main(args=None):
