@@ -1,5 +1,6 @@
 # !/usr/bin/env python3
 
+from math import atan
 import time
 import cv2
 import numpy as np
@@ -12,7 +13,6 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
 
-from math import atan2
 import tensorflow as tf
 
 
@@ -32,7 +32,7 @@ class Controller(Node):
         
         self.cmd_vel_publisher = self.create_publisher(Twist, '/cupcar0/cmd_vel', 10)
 
-        self.model = tf.keras.models.load_model('/home/klrshak/ros2ws/src/aim_line_follow/aim_line_follow/NXP_Controller_ML/weights_1/Weights_80')
+        self.model = tf.keras.models.load_model('/home/klrshak/ros2ws/src/aim_line_follow/aim_line_follow/NXP_Controller_ML/weights/Weights_6')
         self.speed_vector = Vector3()
         self.steer_vector = Vector3()
         self.cmd_vel = Twist()
@@ -42,13 +42,14 @@ class Controller(Node):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = cv2.resize(img, (216, 216))
         img = np.reshape(img, (-1, 216, 216, 3))
-        # cv2.imwrite('image.jpg', img)
+        
         outputs = self.model.predict(img)
-        outputs = outputs[0]
         print(outputs)
 
-        self.speed_vector.x = float(0.4)
-        self.steer_vector.z = float(-outputs[1])
+        steer = - atan(outputs)
+
+        self.speed_vector.x = float(0.6)# vel
+        self.steer_vector.z = float(steer) #steer
         
         self.cmd_vel.linear = self.speed_vector
         self.cmd_vel.angular = self.steer_vector
