@@ -68,7 +68,7 @@ if __name__ == '__main__':
     model = get_model(input_shape, pool_size)
     try:
         # Transfer Learning
-        model = tf.keras.models.load_model("weights/Weights_10-old")
+        model = tf.keras.models.load_model("weights/Weights_6-old")
         print("************************Model Weights LOADED*****************")
     except:
         print("Prev model not available")

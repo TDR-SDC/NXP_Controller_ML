@@ -14,6 +14,7 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
 from math import atan
 
+
 # todo Initialising training location
 training_dir = r'/data'
 
@@ -54,6 +55,7 @@ class DataLoader(Node):
 
     def listener_callback(self, data):
         usr_in = get_user_input()
+
         steer = - atan(usr_in)
 
         if not self.Pause:  # self.Pause Mechanism
@@ -62,8 +64,9 @@ class DataLoader(Node):
             img = self.bridge.imgmsg_to_cv2(data, 'bgr8')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = cv2.resize(img, (216, 216))
+            # img = np.array(img)
             self.train_data.append([img, usr_in])
-
+            # print(len(self.train_data))
 
             if len(self.train_data)%3000==0:
                 np.save(path + file_name, self.train_data)

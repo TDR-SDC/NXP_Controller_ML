@@ -46,4 +46,5 @@ def get_model(input_shape=(216, 216, 3), pool_size=(2, 2), activation='relu'):
 
     return model
 
-model = get_model()
+if __name__ == "__main__":
+    model = get_model()
