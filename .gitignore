@@ -1,4 +1,6 @@
 /data
-/weights
+/data-old
 /.vscode
 /.idea
+/__pycache__
+/log
